@@ -14,3 +14,7 @@ Waitech Food Search
     <summary>Image Search</summary>
     <p>Search from PostgreSQL DB with image</p>
 </details>
+
+### How to use
+
+`pip 3 install`
