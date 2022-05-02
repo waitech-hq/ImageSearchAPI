@@ -2,7 +2,5 @@ from fastapi import APIRouter
 from .routers import image, text
 
 api_router = APIRouter()
-api_router.include_router(text.router, prefix="/auth", tags=["Authentication"])
-# api_router.include_router(user.router, prefix="/users", tags=["Users"])
-# api_router.include_router(utils.router, prefix="/utils", tags=["utils"])
-# api_router.include_router(items.router, prefix="/items", tags=["items"])
+api_router.include_router(text.router, prefix="/text", tags=["Text Search"])
+api_router.include_router(image.router, prefix="/image", tags=["Image Search"])
