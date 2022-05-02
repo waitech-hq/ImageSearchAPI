@@ -1,5 +1,7 @@
 
 .app/db/
+app/db/
+
 
 #official python gitignore
 # Byte-compiled / optimized / DLL files
