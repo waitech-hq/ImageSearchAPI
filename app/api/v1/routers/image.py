@@ -10,12 +10,14 @@ import glob, torch, clip, shutil
 import numpy as np
 import pandas as pd
 
+
 from PIL import Image
 from sklearn.metrics.pairwise import cosine_similarity
 
-device = 'cuda' if torch.cude.is_available() else 'cpu'
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
 model, preprocess = clip.load("ViT-B/32", device=device)
 
+CONTENT_STORE = '/Users/elvischege/Desktop/Python/FastAPI/ImageSearchEngine/./app/static/'
 print("Loading Model...")
 
 
@@ -38,18 +40,23 @@ def search_text(db: Session = Depends(get_db)):
      return {'msg': 'Searching with text'}
 
 
-def create_image_embeddings(image_paths, embed_template: embed_schema.ImageEmbed, db: Session = Depends(get_db)):
-	 
+def create_image_embeddings(db, image_paths):
+	
      for img_path in image_paths:
+          embed_template = {
+          'image_path': '',
+          'embedding': ''
+          }
           processed_image = preprocess_image(img_path)
           with torch.no_grad():
                embed = model.encode_image(processed_image).detach().numpy()
           embed = embed.tostring()
 
-          embed_template.embedding = embed
-          embed_template.image_path = img_path
+          embed_template['embedding'] = embed
+          embed_template['image_path'] = img_path
 
-          new_embed = ImageEmbedModel(**embed_template.dict())
+          new_embed = ImageEmbedModel(**embed_template)
+          print('eyi', new_embed)
           db.add(new_embed)
           db.commit()
           db.refresh(new_embed)
@@ -89,7 +96,7 @@ def image_images_similarity(img_path, df):
 	df = df.sort_values(by=['sim'], ascending=False)
 	return df
 	
-def get_image_data(db: Session = Depends(get_db)):
+def get_image_data(db):
      
      image_embeds = db.query(ImageEmbedModel).all()
      if not image_embeds:
@@ -104,4 +111,14 @@ def get_image_data_df():
      return df
 
      # NEEDS SERIOUS TESTING
+
+@router.get("/create_image_embeds")
+def create_image_embeds(db: Session = Depends(get_db)):
+	image_paths = glob.glob(CONTENT_STORE+'/*.jpg') + glob.glob(CONTENT_STORE+'/*.jpeg')
+	print(image_paths)
+	status = create_image_embeddings(db, image_paths)
+	if status=='success':
+		return "Inserted"
+	else:
+		return "Failed"
 

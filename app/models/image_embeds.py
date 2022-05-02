@@ -5,8 +5,8 @@ from sqlalchemy.sql.sqltypes import TIMESTAMP
 from sqlalchemy.sql.expression import text
 
 
-class ImageEmbeds(Base):
-    __tablename__ = "users"
+class ImageEmbed(Base):
+    __tablename__ = "image_embeds"
     id = Column(Integer, primary_key=True, nullable=False)
     annoy_index = Column(Integer, nullable=False, unique=True) #future
     image_path = Column(String, nullable=False)
