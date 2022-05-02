@@ -38,7 +38,7 @@ def search_text(db: Session = Depends(get_db)):
 
 
 def create_image_embeddings(image_paths, db: Session = Depends(get_db)):
-	conn = sqlite3.connect(DATABASE)
+	 
 	for img_path in image_paths:
 		processed_image = preprocess_image(img_path)
 		with torch.no_grad():
