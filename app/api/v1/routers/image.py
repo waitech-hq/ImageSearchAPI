@@ -110,11 +110,11 @@ def get_image_data_df():
      df = pd.read_sql_table('image_embed', con=engine)
      return df
 
-     # NEEDS SERIOUS TESTING
+# NEEDS SERIOUS TESTING
 
 @router.get("/create_image_embeds")
-def create_image_embeds(db: Session = Depends(get_db)):
-	image_paths = glob.glob(CONTENT_STORE+'/*.jpg') + glob.glob(CONTENT_STORE+'/*.jpeg')
+async def create_image_embeds(db: Session = Depends(get_db)):
+	image_paths = glob.glob(CONTENT_STORE+'/*.jpeg')
 	print(image_paths)
 	status = create_image_embeddings(db, image_paths)
 	if status=='success':
