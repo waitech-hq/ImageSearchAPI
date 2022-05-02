@@ -43,29 +43,30 @@ def search_text(db: Session = Depends(get_db)):
 
 def create_image_embeddings(db, image_paths):
 	
-     for img_path in image_paths:
-          embed_template = {
-          'image_path': '',
-          'embedding': ''
+	embed_template = {
+          'image_path': str,
+          'embedding': str
           }
-          processed_image = preprocess_image(img_path)
-          with torch.no_grad():
-               embed = model.encode_image(processed_image).detach().numpy()
-          embed = embed.tostring()
 
-          embed_template['embedding'] = embed
-          embed_template['image_path'] = img_path
+	for img_path in image_paths:
+          
+		processed_image = preprocess_image(img_path)
+		with torch.no_grad():
+			embed = model.encode_image(processed_image).detach().numpy()
+		embed = embed.tostring()
 
-          new_embed = ImageEmbedModel(**embed_template)
-          print('eyi', new_embed)
-          db.add(new_embed)
-          db.commit()
-          db.refresh(new_embed)
+		embed_template['embedding'] = embed
+		embed_template['image_path'] = img_path
 
+		new_embed = ImageEmbedModel(**embed_template)
+		embed_template.clear()
 
-         
-          print('Inserted', img_path)
-          return {'msg': "success", "data": new_embed}
+		db.add(new_embed)
+		db.commit()
+		db.refresh(new_embed)
+		print('\nInserted', img_path)
+
+	return True
 
 
 def cal_sim(feat1, feat2):
@@ -115,10 +116,11 @@ def get_image_data_df():
 
 @router.get("/create_image_embeds")
 async def create_image_embeds(db: Session = Depends(get_db)):
+	
 	image_paths = glob.glob(CONTENT_STORE+'/*.jpeg')
-	print(image_paths)
+	print('PATHS:', image_paths)
 	status = create_image_embeddings(db, image_paths)
-	if status=='success':
+	if status:
 		return "Inserted"
 	else:
 		return "Failed"
