@@ -5,11 +5,11 @@ import uvicorn
 from fastapi import FastAPI
 from .api.v1.api import api_router
 from .core.config import settings
-# from .models import user, reservation, restaurant
+from .models import image_embeds
 from .db import database
 
 
-# user.Base.metadata.create_all(bind=database.engine)
+image_embeds.Base.metadata.create_all(bind=database.engine)
 
 app = FastAPI(title=settings.PROJECT_NAME)
 app.include_router(api_router, prefix=settings.API_V1_STR)
