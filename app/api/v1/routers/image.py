@@ -31,6 +31,7 @@ def preprocess_image(image_path):
 	image = preprocess(image).unsqueeze(0).to(device)
 	return image
 
+
 def preprocess_text(text):
 	return clip.tokenize(text).to(device)
 
