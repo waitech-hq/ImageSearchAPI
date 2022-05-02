@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from torch import embedding
 
 
-class UserCreate(BaseModel):
+class ImageEmbed(BaseModel):
     id: int
     image_path: str
     embedding: str

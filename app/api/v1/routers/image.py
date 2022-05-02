@@ -1,9 +1,10 @@
 from typing import List
-from app.models.image_embeds import User as UserModel
-from app.schemas import user as user_schema
+from app.models.image_embeds import ImageEmbed as ImageEmbedModel
+from app.schemas import image_embeds as embed_schema
 from fastapi import  status, HTTPException, Depends, APIRouter
 from sqlalchemy.orm import Session
 from app.api.deps import get_db 
+from app.db.database import engine
 
 import glob, torch, clip, shutil
 import numpy as np
@@ -12,7 +13,7 @@ import pandas as pd
 from PIL import Image
 from sklearn.metrics.pairwise import cosine_similarity
 
-device = 'cuda ' if torch.cude.is_available() else 'cpu'
+device = 'cuda' if torch.cude.is_available() else 'cpu'
 model, preprocess = clip.load("ViT-B/32", device=device)
 
 print("Loading Model...")
@@ -20,7 +21,7 @@ print("Loading Model...")
 
 router = APIRouter()
 
-print('Loading Model...')
+ 
 
 # Image & Text Functions
 def preprocess_image(image_path):
@@ -37,20 +38,27 @@ def search_text(db: Session = Depends(get_db)):
      return {'msg': 'Searching with text'}
 
 
-def create_image_embeddings(image_paths, db: Session = Depends(get_db)):
+def create_image_embeddings(image_paths, embed_template: embed_schema.ImageEmbed, db: Session = Depends(get_db)):
 	 
-	for img_path in image_paths:
-		processed_image = preprocess_image(img_path)
-		with torch.no_grad():
-			embed = model.encode_image(processed_image).detach().numpy()
-		embed = embed.tostring()
+     for img_path in image_paths:
+          processed_image = preprocess_image(img_path)
+          with torch.no_grad():
+               embed = model.encode_image(processed_image).detach().numpy()
+          embed = embed.tostring()
 
-		## Insert data into sqlite3
-		query = "INSERT INTO image_embeds(image_path, embedding) VALUES(?, ?);"
-		conn.execute(query, (img_path, embed))
-		conn.commit()
-		print('Inserted', img_path)
-	return 'success'
+          embed_template.embedding = embed
+          embed_template.image_path = img_path
+
+          new_embed = ImageEmbedModel(**embed_template.dict())
+          db.add(new_embed)
+          db.commit()
+          db.refresh(new_embed)
+
+
+         
+          print('Inserted', img_path)
+          return {'msg': "success", "data": new_embed}
+
 
 def cal_sim(feat1, feat2):
 	img_embed = np.fromstring(feat2, dtype=np.float32)
@@ -81,18 +89,17 @@ def image_images_similarity(img_path, df):
 	df = df.sort_values(by=['sim'], ascending=False)
 	return df
 	
-def get_image_data():
-	# conn = sqlite3.connect(DATABASE)
-	curr = conn.cursor()
+def get_image_data(db: Session = Depends(get_db)):
+     
+     image_embeds = db.query(ImageEmbedModel).all()
+     if not image_embeds:
+          raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+	
+     return image_embeds
 
-	query = "SELECT image_path, embedding FROM image_embeds;"
-	curr.execute(query)
-
-	rows = curr.fetchall()
-	return rows
-
+# Pandas Read SQL with SQLALCHEMY ORM CONVERSION
 def get_image_data_df():
-	# con = sqlite3.connect(DATABASE)
-	df = pd.read_sql("SELECT image_path, embedding FROM image_embeds;", con)
-	return df
+     
+     df = pd.read_sql_table('image_embed', con=engine)
+     return df
 
