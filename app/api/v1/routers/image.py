@@ -103,3 +103,5 @@ def get_image_data_df():
      df = pd.read_sql_table('image_embed', con=engine)
      return df
 
+     # NEEDS SERIOUS TESTING
+
