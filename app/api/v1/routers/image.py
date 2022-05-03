@@ -111,7 +111,7 @@ def get_image_data(db):
 # Pandas Read SQL with SQLALCHEMY ORM CONVERSION
 def get_image_data_df():
      
-     df = pd.read_sql_table('image_embed', con=engine)
+     df = pd.read_sql_table('image_embeds', con=engine)
      return df
 
 # NEEDS SERIOUS TESTING
@@ -128,9 +128,10 @@ def create_image_embeds(db: Session = Depends(get_db)):
 		return "Failed"
 
 
-@router.get("/imagesearchhome", response_class=HTMLResponse)
+@router.get("/imagesearchhome")
 def imagesearchhome(request: Request):
-	df = get_image_data_df()
-	images = df['image_path'].tolist()
 	
-	return  {"request": request, "images": images}
+	df = get_image_data_df()
+	# images = df['image_path'].tolist()
+	
+	return {"images_in_db": df['image_path'].to_dict()}

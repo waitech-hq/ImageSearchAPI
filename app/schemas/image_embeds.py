@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from torch import embedding
+ 
 
 
 class ImageEmbed(BaseModel):
