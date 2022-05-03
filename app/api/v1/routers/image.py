@@ -72,6 +72,8 @@ def create_image_embeddings(db, image_paths):
 
 
 def cal_sim(feat1, feat2):
+
+
 	img_embed = np.fromstring(feat2, dtype=np.float32)
 	img_embed = img_embed.reshape((1, img_embed.shape[0]))
 	sim = cosine_similarity(feat1, img_embed)
@@ -80,9 +82,12 @@ def cal_sim(feat1, feat2):
 def text_images_similarity(text, df):
 	## Preprocess text
 	processed_text = preprocess_text([text])
+	
 	with torch.no_grad():
 		text_embed = model.encode_text(processed_text)
 	
+
+	print(f"This torchy thingy text {processed_text}")
 	## Calculate cos sim for all images wrt to text
 	df['sim'] = df['embedding'].apply(lambda x: cal_sim(text_embed, x))
 	
