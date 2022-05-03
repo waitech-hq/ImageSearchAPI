@@ -1,7 +1,7 @@
 from typing import List
 from app.models.image_embeds import ImageEmbed as ImageEmbedModel
 from app.schemas import image_embeds as embed_schema
-from fastapi import  status, HTTPException, Depends, APIRouter
+from fastapi import  Request, status, HTTPException, Depends, APIRouter
 from sqlalchemy.orm import Session
 from app.api.deps import get_db 
 from app.db.database import engine
@@ -9,6 +9,8 @@ from app.db.database import engine
 import glob, torch, clip, shutil
 import numpy as np
 import pandas as pd
+
+from fastapi.responses import HTMLResponse
 
 
 from PIL import Image
@@ -115,7 +117,7 @@ def get_image_data_df():
 # NEEDS SERIOUS TESTING
 
 @router.get("/create_image_embeds")
-async def create_image_embeds(db: Session = Depends(get_db)):
+def create_image_embeds(db: Session = Depends(get_db)):
 	
 	image_paths = glob.glob(CONTENT_STORE+'/*.jpeg')
 	print('PATHS:', image_paths)
@@ -125,3 +127,10 @@ async def create_image_embeds(db: Session = Depends(get_db)):
 	else:
 		return "Failed"
 
+
+@router.get("/imagesearchhome", response_class=HTMLResponse)
+def imagesearchhome(request: Request):
+	df = get_image_data_df()
+	images = df['image_path'].tolist()
+	
+	return  {"request": request, "images": images}
