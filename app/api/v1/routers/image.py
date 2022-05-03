@@ -110,7 +110,7 @@ def get_image_data(db):
 
 # Pandas Read SQL with SQLALCHEMY ORM CONVERSION
 def get_image_data_df():
-     
+
      df = pd.read_sql_table('image_embeds', con=engine)
      return df
 
