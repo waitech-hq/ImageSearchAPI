@@ -128,10 +128,27 @@ def create_image_embeds(db: Session = Depends(get_db)):
 		return "Failed"
 
 
+# Acts as image base search
 @router.get("/imagesearchhome")
-def imagesearchhome(request: Request):
+def imagesearchhome():
 	
 	df = get_image_data_df()
 	# images = df['image_path'].tolist()
 	
 	return {"images_in_db": df['image_path'].to_dict()}
+
+@router.post("/imagesearch")
+async def imagesearch(search_input: str):
+
+	
+	print(f'\n\n\n{search_input}\n\n')
+
+	## Get whole data from DB
+	df = get_image_data_df()
+	df_sim = text_images_similarity(search_input, df)
+	print(df_sim)
+	# images = df_sim['image_path'].tolist()
+
+	# context = {"request": request, "images": images, "text": text}
+	# print("\n\n\n DIS IS DA TEXT", text, '\n\n')
+	return "Hello"
