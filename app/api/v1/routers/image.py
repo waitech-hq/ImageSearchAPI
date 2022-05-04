@@ -1,3 +1,4 @@
+from email.mime import application
 from typing import List
 from app.models.image_embeds import ImageEmbed as ImageEmbedModel
 from app.schemas import image_embeds as embed_schema
@@ -90,13 +91,15 @@ def text_images_similarity(text, df):
 	
 	# print(f"Heyy and ummm {df['embedding']}")
 	## Calculate cos sim for all images wrt to text
-	df['sim'] = df['embedding'].apply(lambda x: cal_sim(text_embed, x))
+	# df['sim'] = df['embedding'].apply(lambda x: cal_sim(text_embed, x))
+	application_x = lambda x: cal_sim(text_embed, x) # THIS IS WHERE THE BUGG IS AHHHH
 
-	print('THE SIMM WORKSS', df['sim'])
+	print('THE SIMM WORKSS ahhhh', df['embedding'].apply(application_x))
 	
 	
-	df = df.sort_values(by=['sim'], ascending=False)
-	return df
+	# df = df.sort_values(by=['sim'], ascending=False)
+	# return df
+	return 0
 
 def image_images_similarity(img_path, df):
 	## Preprocess image
