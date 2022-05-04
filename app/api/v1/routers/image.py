@@ -66,7 +66,7 @@ def create_image_embeddings(db, image_paths):
 		db.add(new_embed)
 		db.commit()
 		db.refresh(new_embed)
-		print('\nInserted', img_path)
+
 
 	return True
 
@@ -88,9 +88,11 @@ def text_images_similarity(text, df):
 	
 
 	
-	print(f"Heyy and ummm {df['embedding']}")
+	# print(f"Heyy and ummm {df['embedding']}")
 	## Calculate cos sim for all images wrt to text
 	df['sim'] = df['embedding'].apply(lambda x: cal_sim(text_embed, x))
+
+	print('THE SIMM WORKSS', df['sim'])
 	
 	
 	df = df.sort_values(by=['sim'], ascending=False)
@@ -152,8 +154,8 @@ async def imagesearch(search_input: str):
 
 	## Get whole data from DB
 	df = get_image_data_df()
-	df_sim = text_images_similarity(search_input, df)
-	print(df_sim)
+	df_sim = text_images_similarity(search_input, df) # issue is here
+	print('df smmm', df_sim)
 	# images = df_sim['image_path'].tolist()
 
 	# context = {"request": request, "images": images, "text": text}
