@@ -87,9 +87,11 @@ def text_images_similarity(text, df):
 		text_embed = model.encode_text(processed_text)
 	
 
-	print(f"This torchy thingy text {processed_text}")
+	
+	print(f"Heyy and ummm {df['embedding']}")
 	## Calculate cos sim for all images wrt to text
 	df['sim'] = df['embedding'].apply(lambda x: cal_sim(text_embed, x))
+	
 	
 	df = df.sort_values(by=['sim'], ascending=False)
 	return df
