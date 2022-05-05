@@ -92,6 +92,7 @@ def text_images_similarity(text, df):
 	# print(f"Heyy and ummm {df['embedding']}")
 	## Calculate cos sim for all images wrt to text
 	# df['sim'] = df['embedding'].apply(lambda x: cal_sim(text_embed, x))
+	
 	application_x = lambda x: cal_sim(text_embed, x) # THIS IS WHERE THE BUGG IS AHHHH
 
 	print('THE SIMM WORKSS ahhhh', df['embedding'].apply(application_x))
