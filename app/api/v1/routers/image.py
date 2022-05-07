@@ -73,15 +73,14 @@ def create_image_embeddings(db, image_paths):
 
 
 def cal_sim(feat1, feat2):
-
-
 	img_embed = np.fromstring(feat2, dtype=np.float32)
 	img_embed = img_embed.reshape((1, img_embed.shape[0]))
 	sim = cosine_similarity(feat1, img_embed)
 	return sim[0][0]
 
+
 def text_images_similarity(text, df):
-	## Preprocess text
+
 	processed_text = preprocess_text([text])
 	
 	with torch.no_grad():
@@ -92,7 +91,7 @@ def text_images_similarity(text, df):
 	# print(f"Heyy and ummm {df['embedding']}")
 	## Calculate cos sim for all images wrt to text
 	# df['sim'] = df['embedding'].apply(lambda x: cal_sim(text_embed, x))
-	
+
 	application_x = lambda x: cal_sim(text_embed, x) # THIS IS WHERE THE BUGG IS AHHHH
 
 	print('THE SIMM WORKSS ahhhh', df['embedding'].apply(application_x))
