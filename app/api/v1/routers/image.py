@@ -71,15 +71,29 @@ def create_image_embeddings(db, image_paths):
 
 	return True
 
+def feat_to_32(feat):
+	print('\n\n\n\n THIS IS FIRSTTTT \n\n\n\n\n\n' )
+	# print(np.frombuffer(feat.encode(), dtype=np.float32))
+
+	# print(vector_bytes)
+	vector_bytes_str = feat
+	vector_bytes_str_enc = vector_bytes_str.encode()
+	bytes_np_dec = vector_bytes_str_enc.decode('unicode-escape').encode('ISO-8859-1')[2:-1]
+
+	np.frombuffer(bytes_np_dec, dtype=np.int64)
+
+	print("OG WE ARE FREE", bytes_np_dec)
+	return 0
+
 
 def cal_sim(feat1, feat2):
 	new_arr = feat2.encode()
-	print(new_arr)
 	img_embed = np.frombuffer(feat2.encode(), dtype=np.float16)
-	
-	img_embed = img_embed.reshape((1, img_embed.shape[0]))
-	sim = cosine_similarity(feat1, img_embed)
-	print("DAN DAN DUUNNNNNNN", sim)
+	print("size beforee", len(img_embed))
+	# img_embed = img_embed.reshape((1, img_embed.shape[0]))
+	print('Its sizeee afterr', len(img_embed))
+	# sim = cosine_similarity(feat1, img_embed)
+	# print("DAN DAN DUUNNNNNNN", sim)
 	# return sim[0][0]
 	return ['0']
 
@@ -97,11 +111,12 @@ def text_images_similarity(text, df):
 	## Calculate cos sim for all images wrt to text
 	# df['sim'] = df['embedding'].apply(lambda x: cal_sim(text_embed, x))
 
-	application_x = lambda x: cal_sim(text_embed, x) # THIS IS WHERE THE BUGG IS AHHHH
+	# application_x = lambda x: cal_sim(text_embed, x) # THIS IS WHERE THE BUGG IS AHHHH
 
-	print('THE SIMM WORKSS ahhhh', df['embedding'].apply(application_x))
+	# print('THE SIMM WORKSS ahhhh', df['embedding'].apply(application_x))
 	
-	
+	 
+	df['embedding'].apply(lambda x: feat_to_32(x))
 	# df = df.sort_values(by=['sim'], ascending=False)
 	# return df
 	return 0
@@ -136,7 +151,7 @@ def get_image_data_df():
 @router.get("/create_image_embeds")
 def create_image_embeds(db: Session = Depends(get_db)):
 	
-	image_paths = glob.glob(CONTENT_STORE+'/*.jpeg')
+	image_paths = glob.glob(CONTENT_STORE+'/*.jpeg') + glob.glob(CONTENT_STORE+'/*.jpg') + glob.glob(CONTENT_STORE+'/*.png')
 	print('PATHS:', image_paths)
 	status = create_image_embeddings(db, image_paths)
 	if status:
