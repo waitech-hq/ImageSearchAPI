@@ -1,5 +1,9 @@
 from email.mime import application
+import random
+import string
 from typing import List
+
+from annoy import AnnoyIndex
 from app.models.image_embeds import ImageEmbed as ImageEmbedModel
 from app.schemas import image_embeds as embed_schema
 from fastapi import  Request, status, HTTPException, Depends, APIRouter
@@ -13,7 +17,6 @@ import pandas as pd
 
 from fastapi.responses import HTMLResponse
 
-
 from PIL import Image
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -21,8 +24,18 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 model, preprocess = clip.load("ViT-B/32", device=device)
 
 CONTENT_STORE = '/Users/elvischege/Desktop/Python/FastAPI/ImageSearchEngine/./app/static/'
-print("Loading Model...")
+ANNOY_INDEX_FILE = 'annoy_indexes.ann'
+NUM_OF_RESULTS_TO_SHOW = 5
+NUM_OF_TREES_TO_BUILD = 5
+INDEX_METRIC = 'angular'
+embed_length = 512
+annoy_indexer = AnnoyIndex(embed_length, INDEX_METRIC)
+ANNOY_INDEX = 0
 
+
+
+
+print("Loading Model...")
 
 router = APIRouter()
 
@@ -39,13 +52,23 @@ def preprocess_text(text):
 	return clip.tokenize(text).to(device)
 
 
-@router.get('/')
-def search_text(db: Session = Depends(get_db)):
-     return {'msg': 'Searching with text'}
+def store_uploaded_images(uploaded_files):
+	image_paths = []
+	for uploaded_file in uploaded_files:
+		rand_post_text = ''.join(random.choices(string.ascii_uppercase+string.digits, k = 10))
+		fname_split = uploaded_file.filename.split('.')
+		fname = fname_split[0] + rand_post_text + "." + fname_split[1]
+		file_location = f"{CONTENT_STORE}/{fname}"
+
+		with open(file_location, "wb+") as file_object:
+			file_object.write(uploaded_file.file.read())
+
+		image_paths.append(file_location)
+	return image_paths
 
 
-def create_image_embeddings(db, image_paths):
-	
+def create_embeddings(db, image_paths):
+	global ANNOY_INDEX
 	embed_template = {
           'image_path': str,
           'embedding': str
@@ -57,7 +80,8 @@ def create_image_embeddings(db, image_paths):
 		with torch.no_grad():
 			embed = model.encode_image(processed_image).detach().numpy()
 		embed = embed.tostring()
-
+		
+		embed_template['annoy_index']
 		embed_template['embedding'] = embed
 		embed_template['image_path'] = img_path
 
@@ -65,11 +89,21 @@ def create_image_embeddings(db, image_paths):
 		embed_template.clear()
 
 		db.add(new_embed)
-		db.commit()
+		db.commit()	
 		db.refresh(new_embed)
+
+		annoy_indexer.add_item(ANNOY_INDEX, embed[0])
+		ANNOY_INDEX +=1
+
 
 
 	return True
+
+
+@router.get('/')
+def search_text(db: Session = Depends(get_db)):
+     return {'msg': 'Searching with text'}
+
 
 def feat_to_32(feat):
 	print('\n\n\n\n THIS IS FIRSTTTT \n\n\n\n\n\n' )
