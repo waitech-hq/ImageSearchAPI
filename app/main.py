@@ -3,7 +3,7 @@ import sys, os, ssl, glob
 # pycache remove
 import uvicorn
 from fastapi import FastAPI
-from .api.v1.api import api_router
+from .api.v2.api import api_router
 from .core.config import settings
 from .models import image_embeds
 from .db import database
