@@ -3,7 +3,7 @@ import sys, os, ssl, glob
 # pycache remove
 import uvicorn
 from fastapi import FastAPI
-from .api.v2.api import api_router
+from .api.v1.api import api_router
 from .core.config import settings
 from .models import image_embeds
 from .db import database
@@ -20,7 +20,7 @@ st_abs_file_path = os.path.join(script_dir, "static/")
 
 # FastAPI
 app = FastAPI(title=settings.PROJECT_NAME)
-app.include_router(api_router, prefix=settings.API_V2_STR)
+app.include_router(api_router, prefix=settings.API_V1_STR)
 app.mount("/static", StaticFiles(directory=st_abs_file_path), name="static")
 
 
