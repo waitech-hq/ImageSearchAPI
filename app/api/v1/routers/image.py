@@ -88,15 +88,20 @@ def feat_to_32(feat):
 
 def cal_sim(feat1, feat2):
 	
-    vector_bytes_str = feat2
-    vector_bytes_str_enc = vector_bytes_str.encode()
-    bytes_np_dec = vector_bytes_str_enc.decode('unicode-escape').encode('ISO-8859-1')[2:-1]
-    img_embed = np.frombuffer(bytes_np_dec, dtype=np.float32)
+    img_embed = np.fromstring(feat2.tobytes(), dtype=np.float32)
 
-    print(feat2)
+    # print(feat2)
+    img_embed = img_embed.reshape((1, img_embed.shape[0]))
+
+   
+    sim = cosine_similarity(feat1, img_embed)
+    print(f"It works!! {sim*100}%")
+    return sim[0][0]
+
+    # print(feat2)
     # img_embed = img_embed.reshape((1, img_embed.shape[0]))
     # sim = cosine_similarity(feat1, img_embed)
- 
+
     
     # print("It works!!!", sim)
     # print(sim)
@@ -186,8 +191,8 @@ async def imagesearch(search_input: str):
     ## Get whole data from DB
     df = get_image_data_df()
 
-    print(df['embedding'].encode('utf8'))
-    # df_sim = text_images_similarity(search_input, df) # issue is here
+    print(df['embedding'][0].tobytes())
+    df_sim = text_images_similarity(search_input, df) # issue is here
     # print('df smmm', df_sim)
     # images = df_sim['image_path'].tolist()
 
