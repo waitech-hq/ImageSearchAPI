@@ -81,29 +81,35 @@ def feat_to_32(feat):
 	bytes_np_dec = vector_bytes_str_enc.decode('unicode-escape').encode('ISO-8859-1')[2:-1]
 	
 
-	np.frombuffer(bytes_np_dec, dtype=np.int64)
+	print('Uhhh',)
 
 	return 0
 
 
 def cal_sim(feat1, feat2):
-	new_arr = feat2.encode()
-	img_embed = np.frombuffer(feat2.encode(), dtype=np.float16)
-	print("size beforee", len(img_embed))
-	# img_embed = img_embed.reshape((1, img_embed.shape[0]))
-	print('Its sizeee afterr', len(img_embed))
-	# sim = cosine_similarity(feat1, img_embed)
-	# print("DAN DAN DUUNNNNNNN", sim)
-	# return sim[0][0]
-	return ['0']
+	
+    vector_bytes_str = feat2
+    vector_bytes_str_enc = vector_bytes_str.encode()
+    bytes_np_dec = vector_bytes_str_enc.decode('unicode-escape').encode('ISO-8859-1')[2:-1]
+    img_embed = np.frombuffer(bytes_np_dec, dtype=np.float32)
+
+    print(feat2)
+    # img_embed = img_embed.reshape((1, img_embed.shape[0]))
+    # sim = cosine_similarity(feat1, img_embed)
+ 
+    
+    # print("It works!!!", sim)
+    # print(sim)
+    # return sim[0][0]
+
 
 
 def text_images_similarity(text, df):
 
-	processed_text = preprocess_text([text])
+    processed_text = preprocess_text([text])
 	
-	with torch.no_grad():
-		text_embed = model.encode_text(processed_text)
+    with torch.no_grad():
+        text_embed = model.encode_text(processed_text)
 	
 
 	
@@ -116,10 +122,11 @@ def text_images_similarity(text, df):
 	# print('THE SIMM WORKSS ahhhh', df['embedding'].apply(application_x))
 	
 	 
-	df['embedding'].apply(lambda x: feat_to_32(x))
+    df['embedding'].apply(lambda x: cal_sim(text_embed, x))
+    # df['embedding'].apply(lambda x: feat_to_32(x))
 	# df = df.sort_values(by=['sim'], ascending=False)
 	# return df
-	return 0
+    return 0
 
 def image_images_similarity(img_path, df):
 	## Preprocess image
@@ -143,7 +150,8 @@ def get_image_data(db):
 # Pandas Read SQL with SQLALCHEMY ORM CONVERSION
 def get_image_data_df():
 
-     df = pd.read_sql_table('image_embeds', con=engine)
+     df = pd.read_sql('SELECT image_path, embedding FROM image_embeds;', con=engine)
+
      return df
 
 # NEEDS SERIOUS TESTING
@@ -172,15 +180,17 @@ def imagesearchhome():
 @router.post("/imagesearch")
 async def imagesearch(search_input: str):
 
-	
-	print(f'\n\n\n{search_input}\n\n')
 
-	## Get whole data from DB
-	df = get_image_data_df()
-	df_sim = text_images_similarity(search_input, df) # issue is here
-	print('df smmm', df_sim)
-	# images = df_sim['image_path'].tolist()
+    print(f'\n\n\n{search_input}\n\n')
 
-	# context = {"request": request, "images": images, "text": text}
-	# print("\n\n\n DIS IS DA TEXT", text, '\n\n')
-	return "Hello"
+    ## Get whole data from DB
+    df = get_image_data_df()
+
+    print(df['embedding'].encode('utf8'))
+    # df_sim = text_images_similarity(search_input, df) # issue is here
+    # print('df smmm', df_sim)
+    # images = df_sim['image_path'].tolist()
+
+    # context = {"request": request, "images": images, "text": text}
+    # print("\n\n\n DIS IS DA TEXT", text, '\n\n')
+    return "Hello"
