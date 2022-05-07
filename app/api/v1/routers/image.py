@@ -73,10 +73,15 @@ def create_image_embeddings(db, image_paths):
 
 
 def cal_sim(feat1, feat2):
-	img_embed = np.fromstring(feat2, dtype=np.float32)
+	new_arr = feat2.encode()
+	print(new_arr)
+	img_embed = np.frombuffer(feat2.encode(), dtype=np.float16)
+	
 	img_embed = img_embed.reshape((1, img_embed.shape[0]))
 	sim = cosine_similarity(feat1, img_embed)
-	return sim[0][0]
+	print("DAN DAN DUUNNNNNNN", sim)
+	# return sim[0][0]
+	return ['0']
 
 
 def text_images_similarity(text, df):
