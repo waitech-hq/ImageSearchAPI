@@ -45,68 +45,32 @@ def search_text(db: Session = Depends(get_db)):
 
 
 def create_image_embeddings(db, image_paths):
-	
 	embed_template = {
           'image_path': str,
           'embedding': str
           }
 
-	for img_path in image_paths:
-          
+	for img_path in image_paths:   
 		processed_image = preprocess_image(img_path)
 		with torch.no_grad():
 			embed = model.encode_image(processed_image).detach().numpy()
 		embed = embed.tostring()
-
 		embed_template['embedding'] = embed
 		embed_template['image_path'] = img_path
-
 		new_embed = ImageEmbedModel(**embed_template)
 		embed_template.clear()
-
 		db.add(new_embed)
 		db.commit()
 		db.refresh(new_embed)
 
-
 	return True
-
-def feat_to_32(feat):
-	print('\n\n\n\n THIS IS FIRSTTTT \n\n\n\n\n\n' )
-	# print(np.frombuffer(feat.encode(), dtype=np.float32))
-
-	# print(vector_bytes)
-	vector_bytes_str = feat
-	vector_bytes_str_enc = vector_bytes_str.encode()
-	bytes_np_dec = vector_bytes_str_enc.decode('unicode-escape').encode('ISO-8859-1')[2:-1]
-	
-
-	print('Uhhh',)
-
-	return 0
 
 
 def cal_sim(feat1, feat2):
-	
     img_embed = np.fromstring(feat2.tobytes(), dtype=np.float32)
-
-    # print(feat2)
     img_embed = img_embed.reshape((1, img_embed.shape[0]))
-
-   
     sim = cosine_similarity(feat1, img_embed)
-    print(f"It works!! {sim*100}%")
     return sim[0][0]
-
-    # print(feat2)
-    # img_embed = img_embed.reshape((1, img_embed.shape[0]))
-    # sim = cosine_similarity(feat1, img_embed)
-
-    
-    # print("It works!!!", sim)
-    # print(sim)
-    # return sim[0][0]
-
 
 
 def text_images_similarity(text, df):
@@ -115,23 +79,11 @@ def text_images_similarity(text, df):
 	
     with torch.no_grad():
         text_embed = model.encode_text(processed_text)
-	
-
-	
-	# print(f"Heyy and ummm {df['embedding']}")
-	## Calculate cos sim for all images wrt to text
-	# df['sim'] = df['embedding'].apply(lambda x: cal_sim(text_embed, x))
-
-	# application_x = lambda x: cal_sim(text_embed, x) # THIS IS WHERE THE BUGG IS AHHHH
-
-	# print('THE SIMM WORKSS ahhhh', df['embedding'].apply(application_x))
-	
 	 
-    df['embedding'].apply(lambda x: cal_sim(text_embed, x))
-    # df['embedding'].apply(lambda x: feat_to_32(x))
-	# df = df.sort_values(by=['sim'], ascending=False)
-	# return df
-    return 0
+    df['sim'] = df['embedding'].apply(lambda x: cal_sim(text_embed, x))
+    df = df.sort_values(by=['sim'], ascending=False)
+    return df
+
 
 def image_images_similarity(img_path, df):
 	## Preprocess image
@@ -190,12 +142,10 @@ async def imagesearch(search_input: str):
 
     ## Get whole data from DB
     df = get_image_data_df()
-
-    print(df['embedding'][0].tobytes())
     df_sim = text_images_similarity(search_input, df) # issue is here
-    # print('df smmm', df_sim)
-    # images = df_sim['image_path'].tolist()
+    images = df_sim['image_path'].tolist()
+    print(images)
 
     # context = {"request": request, "images": images, "text": text}
     # print("\n\n\n DIS IS DA TEXT", text, '\n\n')
-    return "Hello"
+    return {"search_term": search_input, "images": images}
