@@ -20,7 +20,7 @@ st_abs_file_path = os.path.join(script_dir, "static/")
 
 # FastAPI
 app = FastAPI(title=settings.PROJECT_NAME)
-app.include_router(api_router, prefix=settings.API_V1_STR)
+app.include_router(api_router, prefix=settings.API_V2_STR)
 app.mount("/static", StaticFiles(directory=st_abs_file_path), name="static")
 
 

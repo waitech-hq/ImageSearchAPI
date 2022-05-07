@@ -1,4 +1,4 @@
-from email.mime import application
+from email.mime import application, image
 import random
 import string
 from typing import List
@@ -94,10 +94,36 @@ def create_embeddings(db, image_paths):
 
 		annoy_indexer.add_item(ANNOY_INDEX, embed[0])
 		ANNOY_INDEX +=1
+		print('INSERTED', image_paths)
 
 
 
 	return True
+
+
+def update_annoy_index():
+	global ANNOY_INDEX
+	query = "SELECT id FROM image_embeds ORDER BY id DESC LIMIT 1;"
+	rows = exec_query(query)
+	if rows==[]:
+		ANNOY_INDEX = 0
+	else:
+		ANNOY_INDEX = int(rows[0][0]) + 1
+	print('Updated Annoy Index as:', ANNOY_INDEX)
+
+
+def create_image_embeddings(db, uploaded_files):
+
+	image_paths = store_uploaded_images(uploaded_files)
+
+	for image_path in image_paths:
+		create_embedding(db, image_path)
+
+	annoy_indexer.build(NUM_OF_TREES_TO_BUILD)
+	annoy_indexer.save(ANNOY_INDEX_FILE)
+
+	update_annoy_index()
+	return 'Embeddings Created !'
 
 
 @router.get('/')
@@ -154,6 +180,7 @@ def text_images_similarity(text, df):
 	# df = df.sort_values(by=['sim'], ascending=False)
 	# return df
 	return 0
+
 
 def image_images_similarity(img_path, df):
 	## Preprocess image

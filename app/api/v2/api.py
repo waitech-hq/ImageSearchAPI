@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from .routers import image, text
+from .routers import image
 
 api_router = APIRouter()
 # api_router.include_router(text.router, prefix="/text", tags=["Text Search"])
