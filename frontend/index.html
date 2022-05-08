@@ -24,6 +24,39 @@
       }
 
       .search-div {
+        display: flex;
+        padding: 20px;
+      }
+
+      .drop-down {
+        font-size: 25px;
+        color: #ffffff;
+        background-color: #1b998b;
+        float: left;
+        padding: 20px;
+        width: 19%;
+        margin: 0px 10px 0 10px;
+      }
+
+      .param {
+        width: 61%;
+        padding: 20px;
+        border: 2px solid red;
+      }
+
+      .go {
+        margin-left: 10px;
+        margin-right: 10px;
+        width: 20%;
+        float: right;
+        padding: 20px;
+        border: 2px solid red;
+      }
+
+      .result-div {
+        margin: 10px 30px 30px 30px;
+        background-color: #fff;
+        height: 200px;
       }
     </style>
   </head>
@@ -32,11 +65,20 @@
       <h1 class="header">Image Search Engine</h1>
 
       <div class="search-div">
-        <div class="drop-down">Image</div>
+        <select class="drop-down" name="Text" id="search-type">
+          <option value="Text">Text</option>
+          <option value="Image" selected>Image</option>
+        </select>
+
         <div class="param">Drop Image here</div>
         <div class="go">GOO</div>
       </div>
-      <div class="results-div"></div>
+      <div class="results-div">
+        <p>Results</p>
+        <div class="result-div">
+          <p>AHh</p>
+        </div>
+      </div>
       <div class="footer">Made with love by @elvisnchege</div>
     </div>
   </body>
