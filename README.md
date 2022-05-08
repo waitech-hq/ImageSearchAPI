@@ -1,4 +1,4 @@
-# ImageSearchAPI
+# ImageSearchAPP
 
 ## Utilisation
 
