@@ -9,7 +9,6 @@ from .models import image_embeds
 from .db import database
 from fastapi.staticfiles import StaticFiles
 
-
 sys.dont_write_bytecode = True
 ssl._create_default_https_context = ssl._create_unverified_context
 
