@@ -1,7 +1,6 @@
 # ImageSearchAPI
 
-## Utilisation
-
+## Built for
 Waitech Food Search
 
 ### Features
