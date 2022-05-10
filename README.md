@@ -16,4 +16,4 @@ Waitech Food Search
 
 ### How to use
 
-`pip 3 install`
+`working on it...`
